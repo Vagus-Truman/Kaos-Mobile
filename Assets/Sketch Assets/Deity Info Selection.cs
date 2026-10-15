@@ -14,8 +14,6 @@ public class DeityInfoSelection : MonoBehaviour
     public Image Charge2;
     public Image Charge3;
 
-    public TextMeshProUGUI deityNaming;
-    public TextMeshProUGUI deityInfoBreakdown;
 
     [Serializable]
     public struct DeityInfo
@@ -30,8 +28,28 @@ public class DeityInfoSelection : MonoBehaviour
         }
     }
 
+    public TextMeshProUGUI deityNaming;
+    public TextMeshProUGUI deityInfoBreakdown;
     public DeityInfo[] deityInfoArray;
     private DeityInfo deityAssignment;
+
+    [Serializable]
+    public struct PlayerType
+    {
+        public string PlayerTypeDesignation;
+        public string PlayerTypeDetails;
+
+        public PlayerType(string name, string description)
+        {
+            this.PlayerTypeDesignation = name;
+            this.PlayerTypeDetails = description;
+        }
+    }
+
+    public TextMeshProUGUI playerTypeNaming;
+    public TextMeshProUGUI playerTypeInfoBreakdown;
+    public PlayerType[] playerTypesArray;
+    private PlayerType playerTypeDesignation;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -55,6 +73,12 @@ public class DeityInfoSelection : MonoBehaviour
 
         deityNaming.text = deityAssignment.DeityName;
         deityInfoBreakdown.text = deityAssignment.DeityDescription;
+
+        int playerTypeSelect = UnityEngine.Random.Range(0, deityInfoArray.Length);
+        playerTypeDesignation = playerTypesArray[playerTypeSelect];
+
+        playerTypeNaming.text = playerTypeDesignation.PlayerTypeDesignation;
+        playerTypeInfoBreakdown.text = playerTypeDesignation.PlayerTypeDetails;
     }
 
     public void ChargeMaintenance()

@@ -58,7 +58,7 @@ Material:
     - _Dissolve_Amount: 0
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _Radius: 1
+    - _Radius: 0
     - _Thickness: 0.25
     m_Colors:
     - _Edge_Color: {r: 1, g: 0.978562, b: 0.8066038, a: 1}
