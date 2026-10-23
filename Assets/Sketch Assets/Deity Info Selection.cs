@@ -31,25 +31,33 @@ public class DeityInfoSelection : MonoBehaviour
     public TextMeshProUGUI deityNaming;
     public TextMeshProUGUI deityInfoBreakdown;
     public DeityInfo[] deityInfoArray;
-    private DeityInfo deityAssignment;
+    public DeityInfo deityAssignment;
+
+    public enum PlayerRoleTypes
+    {
+        Creator,
+        Trickster
+    }
 
     [Serializable]
     public struct PlayerType
     {
         public string PlayerTypeDesignation;
         public string PlayerTypeDetails;
+        public PlayerRoleTypes PlayerRoleType;
 
-        public PlayerType(string name, string description)
+        public PlayerType(string name, string description, PlayerRoleTypes type)
         {
             this.PlayerTypeDesignation = name;
             this.PlayerTypeDetails = description;
+            this.PlayerRoleType = type;
         }
     }
 
     public TextMeshProUGUI playerTypeNaming;
     public TextMeshProUGUI playerTypeInfoBreakdown;
     public PlayerType[] playerTypesArray;
-    private PlayerType playerTypeDesignation;
+    public PlayerType playerTypeDesignation;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()

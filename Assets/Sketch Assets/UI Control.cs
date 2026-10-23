@@ -2,6 +2,7 @@ using NUnit.Framework.Internal;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using static Unity.Collections.AllocatorManager;
 
 public class UIControl : MonoBehaviour
 {
