@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic; // Required for Lists
-using System.Linq; // Required for Contains()
-using TMPro;
 using UnityEngine;
 using static DeityInfoSelection;
 
 public class HexGridManagement : MonoBehaviour
 {
-    public TextMeshProUGUI[] tileDesignation;
+    public HexTile[] tileDesignation;
+    public HexTile selection;
+    public List<HexTile> selected = new List<HexTile>();
+    public List<HexTile> unselected = new List<HexTile>();
 
     [Serializable]
     public struct TileType
@@ -32,13 +33,49 @@ public class HexGridManagement : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-
     }
 
-    // Update is called once per frame
-    void Update()
+    public void selectionHighlighted(HexTile focus)
     {
+        if (focus.visible)
+        {
+            selection = focus;
+            
+            if (!selected.Contains(selection))
+            {
+                unselected.Remove(focus);
+                foreach (HexTile tile in unselected)
+                {
+                    tile.buttonRef.interactable = false;
+                }
+            }
+        } else
+        {
+            if (!selected.Contains(focus)) {
+                unselected.Add(focus);
+                selection = null;
+                foreach (HexTile tile in unselected)
+                {
+                    tile.buttonRef.interactable = true;
+                }
+            }
+        }
+    }
 
+    public void selectionFinalized() // do next turn, and unselected is permentantly like that
+    {
+        if (selection)
+        {
+            selection.selected = true;
+            selected.Add(selection);
+
+            foreach (HexTile tile in unselected)
+            {
+                tile.buttonRef.interactable = true;
+            }
+
+            selection = null;
+        }
     }
 
     public void masterControlSelection()
@@ -85,6 +122,7 @@ public class HexGridManagement : MonoBehaviour
         }
 
         fogOfWarDictator();
+        unselected.AddRange(tileDesignation);
     }
 
     void fogOfWarDictator()
@@ -124,18 +162,18 @@ public class HexGridManagement : MonoBehaviour
     {
         for (int i = 0; i < tileDesignation.Length; i++)
         {
-            tileDesignation[i].text = "";
+            tileDesignation[i].blank();
         }
 
         foreach (TileType definedTile in presentedTiles)
         {
             if (definedTile.falseIfBlighted)
             {
-                tileDesignation[definedTile.tileNumber].text = "+";
+                tileDesignation[definedTile.tileNumber].sacred();
             }
             else
             {
-                tileDesignation[definedTile.tileNumber].text = "-";
+                tileDesignation[definedTile.tileNumber].blighted();
             }
         }
     }
