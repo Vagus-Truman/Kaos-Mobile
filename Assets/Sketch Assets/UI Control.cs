@@ -12,6 +12,10 @@ public class UIControl : MonoBehaviour
     private Coroutine timerCoroutine;
     private Material pulseMaterial;
 
+    public CanvasGroup personalSheet;
+    public CanvasGroup selectionSheet;
+
+    public bool isTurn;
     public float totalDuration = 5f;
     public float timeRemaining;
 
@@ -24,6 +28,7 @@ public class UIControl : MonoBehaviour
         setRollFront();
         pulseMaterial = pulseMaterialSource.material;
         pulseMaterial.SetFloat("_Radius", 0f);
+        itIsTurn();
     }
 
     // Update is called once per frame
@@ -48,7 +53,19 @@ public class UIControl : MonoBehaviour
         rollMenu.gameObject.SetActive(false);
         uniqueCardMenu.gameObject.SetActive(true);
 
-        StartCoroutine(otherPageCoroutine(0f, 1f, 1f));
+        StartCoroutine(otherPageCoroutine(0f, 1f, 1f, uniqueCardMenu));
+    }
+
+    public void itIsTurn()
+    {
+        selectionSheet.gameObject.SetActive(true);
+        StartCoroutine(otherPageCoroutine(0f, 1f, 5f, selectionSheet));
+    }
+
+    public void itIsNotTurn()
+    {
+        selectionSheet.gameObject.SetActive(false);
+        StartCoroutine(otherPageCoroutine(1f, 0f, 5f, selectionSheet));
     }
 
     public void timeToRollForButton()
@@ -80,7 +97,7 @@ public class UIControl : MonoBehaviour
         setCharFront();
     }
 
-    private IEnumerator otherPageCoroutine(float startValue, float endValue, float time)
+    private IEnumerator otherPageCoroutine(float startValue, float endValue, float time, CanvasGroup target)
     {
         float elapsed = 0f;
 
@@ -90,7 +107,7 @@ public class UIControl : MonoBehaviour
             float currentVal = Mathf.Lerp(startValue, endValue, elapsed / time);
 
             // Set the shader property
-            uniqueCardMenu.alpha = currentVal * 1.5f;
+            target.alpha = currentVal * 1.5f;
 
             yield return null; // Wait for the next frame
         }
