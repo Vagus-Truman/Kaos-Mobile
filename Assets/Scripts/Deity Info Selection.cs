@@ -2,6 +2,7 @@ using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Unity.Netcode;
 
 public class DeityInfoSelection : MonoBehaviour
 {
@@ -76,6 +77,13 @@ public class DeityInfoSelection : MonoBehaviour
 
     public void DeitySelection()
     {
+        // Prevent the non-playing Host from receiving assignments.
+        if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsClient || NetworkManager.Singleton.IsServer)
+        {
+            Debug.LogWarning("Local deity selection blocked: Host or no client connection.");
+            return;
+        }
+
         int deitySelect = UnityEngine.Random.Range(0, deityInfoArray.Length);
         deityAssignment = deityInfoArray[deitySelect];
 
@@ -87,6 +95,34 @@ public class DeityInfoSelection : MonoBehaviour
 
         playerTypeNaming.text = playerTypeDesignation.PlayerTypeDesignation;
         playerTypeInfoBreakdown.text = playerTypeDesignation.PlayerTypeDetails;
+    }
+
+    public PlayerType[] GenerateRandomRoleAssignments(int playerCount)
+    {
+        if (playerCount != 5 || playerTypesArray.Length != 5)
+        {
+            Debug.LogError(
+                "This assignment setup requires exactly five players " +
+                "and five configured role definitions."
+            );
+
+            return null;
+        }
+
+        PlayerType[] assignments =
+            (PlayerType[])playerTypesArray.Clone();
+
+        // Fisher-Yates shuffle.
+        for (int i = assignments.Length - 1; i > 0; i--)
+        {
+            int randomIndex = UnityEngine.Random.Range(0, i + 1);
+
+            PlayerType temp = assignments[i];
+            assignments[i] = assignments[randomIndex];
+            assignments[randomIndex] = temp;
+        }
+
+        return assignments;
     }
 
     public void ChargeMaintenance()

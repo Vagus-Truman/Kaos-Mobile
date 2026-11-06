@@ -51,14 +51,49 @@ public class HexTile : MonoBehaviour
         hexGrid.selectionHighlighted(this);
     }
 
+    public void SetOccupiedVisual(bool occupied)
+    {
+        // Record whether this hexagon is occupied.
+        selected = occupied;
+
+        // Clear the temporary selection state.
+        visible = false;
+
+        // Keep occupied hexagons highlighted.
+        hexSelection.enabled = occupied;
+
+        // Prevent players from selecting occupied hexagons.
+        buttonRef.interactable = !occupied;
+    }
+
+
+
     public void buttonEvent()
     {
-        if (visible && !selected)
+        NetworkBoardController board =
+            FindAnyObjectByType<NetworkBoardController>();
+
+        // Reject interactions from the Host and inactive players.
+        if (board == null || !board.IsMyTurn)
+        {
+            Debug.Log("Tile selection blocked: not your turn.");
+            return;
+        }
+
+        // Occupied hexagons cannot be selected again.
+        if (selected)
+        {
+            return;
+        }
+
+        if (visible)
         {
             tileUnselected();
-        } else
+        }
+        else
         {
             tileSelected();
         }
     }
+
 }

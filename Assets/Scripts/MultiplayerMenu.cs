@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Unity.Netcode;
+using UnityEngine.SceneManagement;
 
 public class MultiplayerMenu : MonoBehaviour
 {
@@ -44,4 +45,31 @@ public class MultiplayerMenu : MonoBehaviour
             Debug.LogError("Failed to start client.");
         }
     }
+
+    public void StartGame()
+    {
+        NetworkManager networkManager = NetworkManager.Singleton;
+
+        if (networkManager == null || !networkManager.IsServer)
+        {
+            Debug.LogWarning("Only the host can start the game.");
+            return;
+        }
+
+        SceneEventProgressStatus status =
+            networkManager.SceneManager.LoadScene(
+                "UI Sketch",
+                LoadSceneMode.Single
+            );
+
+        if (status == SceneEventProgressStatus.Started)
+        {
+            Debug.Log("Gameplay scene transition started.");
+        }
+        else
+        {
+            Debug.LogWarning("Scene transition failed: " + status);
+        }
+    }
+
 }

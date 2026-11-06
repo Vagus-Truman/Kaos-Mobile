@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using static Unity.Collections.AllocatorManager;
+using Unity.Netcode;
 
 public class UIControl : MonoBehaviour
 {
@@ -22,6 +23,11 @@ public class UIControl : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer)
+        {
+            Debug.Log("Host detected: skipping player UI initialization.");
+            return;
+        }
         rollMenu.alpha = 1.0f;
         uniqueCardMenu.alpha = 0.0f;
 

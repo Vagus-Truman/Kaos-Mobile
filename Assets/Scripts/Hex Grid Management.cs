@@ -9,6 +9,7 @@ public class HexGridManagement : MonoBehaviour
     public HexTile selection;
     public List<HexTile> selected = new List<HexTile>();
     public List<HexTile> unselected = new List<HexTile>();
+    
 
     [Serializable]
     public struct TileType
@@ -77,6 +78,50 @@ public class HexGridManagement : MonoBehaviour
             selection = null;
         }
     }
+
+    public int GetHexID(HexTile hex)
+    {
+        for (int i = 0; i < tileDesignation.Length; i++)
+        {
+            if (tileDesignation[i] == hex)
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    public void RequestSelectedPlacement()
+    {
+        if (selection == null)
+        {
+            Debug.LogWarning("Select a hexagon first.");
+            return;
+        }
+
+        int hexId = GetHexID(selection);
+
+        if (hexId == -1)
+        {
+            Debug.LogWarning("Selected hexagon was not found.");
+            return;
+        }
+
+        NetworkBoardController board = FindAnyObjectByType<NetworkBoardController>();
+
+        if (board == null)
+        {
+            Debug.LogWarning("NetworkBoardController was not found.");
+            return;
+        }
+
+        board.RequestPlacement(hexId);
+
+        Debug.Log("Requested placement on hexagon " + hexId);
+    }
+
+
 
     public void masterControlSelection()
     {
