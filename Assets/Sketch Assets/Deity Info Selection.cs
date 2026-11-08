@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.XR.Interaction.Toolkit.Locomotion.Comfort;
 
 public class DeityInfoSelection : MonoBehaviour
 {
@@ -14,17 +16,33 @@ public class DeityInfoSelection : MonoBehaviour
     public Image Charge2;
     public Image Charge3;
 
+    public enum DeityDomain
+    {
+        Fate,
+        Chaos,
+        Death,
+        Protection,
+        Illusion
+    }
 
     [Serializable]
     public struct DeityInfo
     {
-        public string DeityName;
+        private static readonly string[] domainDetails = new string[] {
+        "Gods of Fate may discern if a chosen tile is Neutral, Blighted, or Sacred on their Divine Relic.",
+        "Gods of Chaos can move a placed tile on the board into a random spot on the board, determined by the Divine Relic.",
+        "Gods of Death can destroy a placed tile, returning that tile into the deck for redistribution and reuse.",
+        "Gods of Protection can protect a tile from rearrangement, or destruction, for one turn.",
+        "Gods of Illusion can exchange the spots of two placed tiles, aside from root tiles."
+        };
+
+        public DeityDomain DeityName;
         public string DeityDescription;
 
-        public DeityInfo(string name, string description)
+        public DeityInfo(DeityDomain choice)
         {
-            this.DeityName = name;
-            this.DeityDescription = description;
+            this.DeityName = choice;
+            this.DeityDescription = domainDetails[(int)DeityName];
         }
     }
 
@@ -42,14 +60,17 @@ public class DeityInfoSelection : MonoBehaviour
     [Serializable]
     public struct PlayerType
     {
-        public string PlayerTypeDesignation;
+        private static readonly string[] roleDetails = new string[] {
+        "You have the power to place tiles on whatever spots you may please, guided by your limited insight of which are which,",
+        "You have the power to place tiles on whatever spots you may please, and you know the true nature of all the spots on the board."
+        };
+
         public string PlayerTypeDetails;
         public PlayerRoleTypes PlayerRoleType;
 
-        public PlayerType(string name, string description, PlayerRoleTypes type)
+        public PlayerType(PlayerRoleTypes type)
         {
-            this.PlayerTypeDesignation = name;
-            this.PlayerTypeDetails = description;
+            this.PlayerTypeDetails = roleDetails[(int)type];
             this.PlayerRoleType = type;
         }
     }
@@ -58,6 +79,7 @@ public class DeityInfoSelection : MonoBehaviour
     public TextMeshProUGUI playerTypeInfoBreakdown;
     public PlayerType[] playerTypesArray;
     public PlayerType playerTypeDesignation;
+    public HexGridManagement hexGridReference;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -68,10 +90,29 @@ public class DeityInfoSelection : MonoBehaviour
         currentChargeCount = chargeCount;
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        
+        if (currentChargeCount > 0)
+        {
+            // in case we're Illusion
+            if (deityAssignment.DeityName == DeityDomain.Illusion)
+            {
+                if (hexGridReference.selected.Count < 2) // and don't have enough placed tiles
+                {
+                    hexGridReference.abilityButton.enabled = false;
+                }
+                else
+                {
+                    if (chargeCount > 0)
+                    {
+                        hexGridReference.abilityButton.enabled = true;
+                    }
+                }
+            }
+        } else
+        {
+            hexGridReference.abilityButton.enabled = false;
+        }
     }
 
     public void DeitySelection()
@@ -79,14 +120,17 @@ public class DeityInfoSelection : MonoBehaviour
         int deitySelect = UnityEngine.Random.Range(0, deityInfoArray.Length);
         deityAssignment = deityInfoArray[deitySelect];
 
-        deityNaming.text = deityAssignment.DeityName;
+        deityNaming.text = deityAssignment.DeityName.ToString();
         deityInfoBreakdown.text = deityAssignment.DeityDescription;
 
         int playerTypeSelect = UnityEngine.Random.Range(0, deityInfoArray.Length);
         playerTypeDesignation = playerTypesArray[playerTypeSelect];
 
-        playerTypeNaming.text = playerTypeDesignation.PlayerTypeDesignation;
+        playerTypeNaming.text = playerTypeDesignation.PlayerRoleType.ToString();
         playerTypeInfoBreakdown.text = playerTypeDesignation.PlayerTypeDetails;
+
+        hexGridReference.masterControlSelection(playerTypeDesignation.PlayerRoleType);
+        hexGridReference.abilityRegister(deityAssignment.DeityName);
     }
 
     public void ChargeMaintenance()
@@ -100,7 +144,7 @@ public class DeityInfoSelection : MonoBehaviour
 
         Charge1.sprite = TriangleEmpty;
         Charge2.sprite = TriangleEmpty;
-        Charge3.sprite = TriangleEmpty;
+        Charge3.sprite = TriangleEmpty; 
 
         switch (currentChargeCount)
         {
@@ -117,8 +161,6 @@ public class DeityInfoSelection : MonoBehaviour
 
             case 1:
                 Charge1.sprite = TriangleFilled;
-                break;
-            case 0:
                 break;
         }
     }
